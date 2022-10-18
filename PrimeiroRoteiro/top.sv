@@ -1,7 +1,5 @@
-// Laboratório de Organização e Arquitetura de Computadores
 // Aluno: Levi de Lima Pereira Júnior - 121210472
-// Professor: Kyller Costa Gorgônio
-// Questão 2 do roteiro
+// Roteiro 1
 
 // DESCRIPTION: Verilator: Systemverilog example module
 // with interface to switch buttons, LEDs, LCD and register display
@@ -43,6 +41,28 @@ module top(input  logic clk_2,
     lcd_b <= {SWI, 56'hFEDCBA09876543};
   end
 
+  logic porta;
+  logic relogio;
+  logic interruptor;
+
+  always_comb begin
+    porta <= SWI[0];
+    relogio <= SWI[1];
+    interruptor <= SWI[2];
+    /*
+    Acende o LED[1] se a porta estiver aberta (SEG[0] <= 0), o relógio eletrônico estiver fora de expediente(SWI[1] <= 0) e o interruptor na mesa do gerente estiver desligado (SWI[2] <= 0). Ou
+    Acende o LED[1] se a porta estiver aberta (SEG[0] <= 0), o relógio eletrônico estiver fora de expediente(SWI[1] <= 0) e o interruptor na mesa do gerente estiver ligado (SWI[2] <= 1), Ou
+    Acende o LED[1] se a porta estiver aberta (SEG[0] <= 0), o relógio eletrônico estiver em horário de expediente(SWI[1] <= 1) e o interruptor na mesa do gerente estiver ligado (SWI[2] <= 1).
+    Não acende o LED[1] se a porta estiver aberta (SEG[0] <= 0), o relógio eletrônico estiver em horário de expediente(SWI[1] <= 1) e o interruptor na mesa do gerente estiver desligado (SWI[2] <= 0).
+    */
+    LED[1] <= (~porta & (~relogio | interruptor));
+  end
+
+  /*
+  -----------------------------------------------------------------------------
+  Questão 2: 
+  */
+
   logic Temperatura1;
   logic Temperatura2;
 
@@ -50,21 +70,36 @@ module top(input  logic clk_2,
     Temperatura1 <= SWI[7];
     Temperatura2 <= SWI[6];
 
+    /* 
+    Se o SWIFT 7 (temperatura igual ou maior que 15 graus) está desligado e o SWIFT 6 (Temperatura igual ou maior que 20 graus) está desligado,
+    então o aquecedor é ativado. Pois está abaixo do limite, então está frio e temos que ligar o aquecedor
+    */
     if (~Temperatura1 & ~Temperatura2) begin
       LED[7] <= 1;
       LED[6] <= 0;
       SEG[7] <= 0;
     end
+    /* 
+    Se o SWIFT 7 (temperatura igual ou maior que 15 graus) está ligado e o SWIFT 6 (Temperatura igual ou maior que 20 graus) está desligado,
+    então o resfriador é ativado.
+    */
     else if (Temperatura1 & Temperatura2) begin
       LED[6] <= 1;
       LED[7] <= 0;
       SEG[7] <= 0;
     end
+    /* 
+    Se o SWIFT 7 (temperatura igual ou maior que 15 graus) está desligado e o SWIFT 6 (Temperatura igual ou maior que 20 graus) está ligado,
+    então resulta em inconsistência e o SEGMENTO é ligado.
+    */
     else if (~Temperatura1 & Temperatura2) begin
       SEG[7] <= 1;
       LED[7] <= 0;
       LED[6] <= 0;
     end
+    /* 
+    Se nenhuma das outras condições forem atendidas, então não é ligado nenhum LED e nenhum segmento.
+    */
     else begin
       LED[6] <= 0;
       LED[7] <= 0;

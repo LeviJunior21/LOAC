@@ -1,6 +1,5 @@
-// Laboratório de Organização e Arquitetura de Computadores
 // Aluno: Levi de Lima Pereira Júnior - 121210472
-// Professor: Kyller Costa Gorgônio
+// Roteiro 2
 
 parameter divide_by=100000000;  // divisor do clock de referência
 // A frequencia do clock de referencia é 50 MHz.
@@ -65,7 +64,7 @@ module top(input  logic clk_2,
     else if (entrada == 'b10) begin
         SEG[7:0] <= numeroUm;
     end
-    else if (entrada == 'b11) begin
+    else begin
         SEG[7:0] <= numeroDois;
     end
   end
