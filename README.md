@@ -2,22 +2,22 @@
 
 <h2> Repositório para as atividades da disciplina de LOAC - UFCG </h2>
 
-### Roteiro 1:
+<h2>Roteiro 1:</h2>
 
-<li> Top.sv: </li>
+### Top.sv:
 
-Sensor de alarme para banco.
-Sensor de temperatura e controle para verificação de estado.
+- Sensor de alarme para banco.
+- Sensor de temperatura e controle para verificação de estado.
 
-### Roteiro 2:
+<h2>Roteiro 2:</h2>
 
-<li> Top.sv: </li>
+### Top.sv:
 
-Controle de sistema de irrigação.
+- Controle de sistema de irrigação.
 Roteamento entre dois dados recebidos e um seletor.
 
-### Roteiro 3:
+<h2>Roteiro 3:</h2>
 
-<li> Top.sv: </li>
+### Top.sv:
 
-Programa que soma, subtrai, e faz combinações AND e OR bit-a-bit.
+- Programa que soma, subtrai, e faz combinações AND e OR bit-a-bit.
