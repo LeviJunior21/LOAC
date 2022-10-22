@@ -1,4 +1,4 @@
-// @Author Levi de Lima Pereira Júnior - 121210472
+// Levi de Lima Pereira Júnior - 121210472
 // Roteiro 3
 
 parameter divide_by=100000000;  // divisor do clock de referência
@@ -57,15 +57,15 @@ module top(input  logic clk_2,
   // Recebe o resultado da operação e verifica qual SEGMENTO irá acender
   function void operacao(logic[2:0] resultadoOperacao);
         case (resultadoOperacao)
-            0: SEG <= zero;
-            1: SEG <= um;
-            2: SEG <= dois;
-            3: SEG <= tres;
-            4: SEG <= menosQuatro;
-            5: SEG <= menosTres;
-            6: SEG <= menosDois;
-            7: SEG <= menosUm;
-            default: SEG <= overflow;
+            0: SEG = zero;
+            1: SEG = um;
+            2: SEG = dois;
+            3: SEG = tres;
+            4: SEG = menosQuatro;
+            5: SEG = menosTres;
+            6: SEG = menosDois;
+            7: SEG = menosUm;
+            default: SEG = overflow;
         endcase
   endfunction
 
