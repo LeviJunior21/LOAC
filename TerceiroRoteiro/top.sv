@@ -39,46 +39,64 @@ module top(input  logic clk_2,
   end
 
   // O número que aparece no segmento após o resultado da operação realizada.
-  parameter tres = 'b01001111;
-  parameter dois = 'b01011011;
-  parameter um = 'b00000110;
-  parameter zero = 'b00111111;
-  parameter menosUm = 'b10000110;
-  parameter menosDois = 'b11011011;
-  parameter menosTres = 'b11001111;
+  parameter tres        = 'b01001111;
+  parameter dois        = 'b01011011;
+  parameter um          = 'b00000110;
+  parameter zero        = 'b00111111;
+  parameter menosUm     = 'b10000110;
+  parameter menosDois   = 'b11011011;
+  parameter menosTres   = 'b11001111;
   parameter menosQuatro = 'b11100110;
-  parameter overflow = 'b10000000;
   
-  logic [2:0] A; // Três cabos para receber os bits
-  logic [2:0] B; // Três cabos para receber os bits
-  logic [2:0] Y; // Três cabos para fazer a operação
-  logic [1:0] F; // Dois cabos para verificar qual será a operação realizada
+  logic signed [2:0] A; // Três cabos para receber os bits sendo um deles como sinal
+  logic signed [2:0] B; // Três cabos para receber os bits sendo um deles como sinal
+  logic signed [2:0] Y; // Três cabos para receber os bits sendo um deles como sinal
+  logic        [1:0] F; // Dois cabos para verificar qual será a operação realizada
+  logic        [0:0] Flow; // Bit verificador de Overflow
 
   // Recebe o resultado da operação e verifica qual SEGMENTO irá acender
-  function void operacao(logic[2:0] resultadoOperacao);
+  function void operacao(logic [2:0] resultadoOperacao);
         case (resultadoOperacao)
-            0: SEG = zero;
-            1: SEG = um;
-            2: SEG = dois;
-            3: SEG = tres;
-            4: SEG = menosQuatro;
-            5: SEG = menosTres;
-            6: SEG = menosDois;
-            7: SEG = menosUm;
-            default: SEG = overflow;
+            3'b000: SEG = zero;
+            3'b001: SEG = um;
+            3'b010: SEG = dois;
+            3'b011: SEG = tres;
+            3'b100: SEG = menosQuatro;
+            3'b101: SEG = menosTres;
+            3'b110: SEG = menosDois;
+            3'b111: SEG = menosUm;
+            default: LED[7] = 1;
         endcase
   endfunction
 
   always_comb begin 
-    A <= SWI[7:5]; // Três cabos para receber do SWIFT
-    B <= SWI[2:0]; // Três cabos para receber do SWIFT
+    A <= SWI[7:5]; // Três cabos para receber do SWIFT e interpretar o primeiro bit como bit de sinal 
+    B <= SWI[2:0]; // Três cabos para receber do SWIFT e interpretar o primeiro bit como bit de sinal 
     F <= SWI[4:3]; // Dois cabos para verificar qual é o operador entre A e B
     
+    // Verificando se vai ocorrer overflow ou underflow 
+    if ((F == 3'b00 & ((A + B) > 3)) | (F == 3'b01 & ((A - B) < -4))) begin
+      Flow <= 1;
+      LED <= 8'b10000000;
+    end
+    else begin
+      Flow <= 0;
+      LED <= 8'b00000000;
+    end
+
     if (F == 'b00) begin // Somador
-      operacao(A + B);
+      Y = A + B;
+      // Se não ocorreu overflow 
+      if (!Flow) begin
+        operacao(Y);
+      end
     end else
     if (F == 'b01) begin // Subtrador
-      operacao(A - B);
+      Y = A - B; 
+      // Se não ocorreu underflow
+      if (!Flow) begin
+        operacao(Y);
+      end
     end else
     if (F == 'b10) begin // Combinador da porta lógica AND bit-a-bit
       operacao(A & B);
