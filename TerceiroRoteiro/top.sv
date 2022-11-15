@@ -1,5 +1,5 @@
-// Levi de Lima Pereira Júnior - 121210472
-// Roteiro 3
+// Levi de Lima Pereira Júnior
+// Roteiro 3 
 
 parameter divide_by=100000000;  // divisor do clock de referência
 // A frequencia do clock de referencia é 50 MHz.
@@ -38,71 +38,88 @@ module top(input  logic clk_2,
     lcd_b <= {SWI, 56'hFEDCBA09876543};
   end
 
-  // O número que aparece no segmento após o resultado da operação realizada.
-  parameter tres        = 'b01001111;
-  parameter dois        = 'b01011011;
-  parameter um          = 'b00000110;
-  parameter zero        = 'b00111111;
-  parameter menosUm     = 'b10000110;
-  parameter menosDois   = 'b11011011;
-  parameter menosTres   = 'b11001111;
+  parameter tres = 'b01001111;
+  parameter dois = 'b01011011;
+  parameter um = 'b00000110;
+  parameter zero = 'b00111111;
+  parameter menosUm = 'b10000110;
+  parameter menosDois = 'b11011011;
+  parameter menosTres = 'b11001111;
   parameter menosQuatro = 'b11100110;
-  
-  logic signed [2:0] A; // Três cabos para receber os bits sendo um deles como sinal
-  logic signed [2:0] B; // Três cabos para receber os bits sendo um deles como sinal
-  logic signed [2:0] Y; // Três cabos para receber os bits sendo um deles como sinal
-  logic        [1:0] F; // Dois cabos para verificar qual será a operação realizada
-  logic        [0:0] Flow; // Bit verificador de Overflow
+  parameter apagado = 'b00000000;
 
-  // Recebe o resultado da operação e verifica qual SEGMENTO irá acender
+  logic signed [2:0] A;
+  logic signed [2:0] B; 
+  logic        [1:0] F; 
+  logic        [0:0] Flow;
+
   function void operacao(logic [2:0] resultadoOperacao);
-        case (resultadoOperacao)
-            3'b000: SEG = zero;
-            3'b001: SEG = um;
-            3'b010: SEG = dois;
-            3'b011: SEG = tres;
-            3'b100: SEG = menosQuatro;
-            3'b101: SEG = menosTres;
-            3'b110: SEG = menosDois;
-            3'b111: SEG = menosUm;
-            default: LED[7] = 1;
-        endcase
+      case (resultadoOperacao)
+        3'b000: SEG = zero;
+        3'b001: SEG = um;
+        3'b010: SEG = dois;
+        3'b011: SEG = tres;
+        3'b100: SEG = menosQuatro;
+        3'b101: SEG = menosTres;
+        3'b110: SEG = menosDois;
+        3'b111: SEG = menosUm;
+      endcase
   endfunction
 
-  always_comb begin 
-    A <= SWI[7:5]; // Três cabos para receber do SWIFT e interpretar o primeiro bit como bit de sinal 
-    B <= SWI[2:0]; // Três cabos para receber do SWIFT e interpretar o primeiro bit como bit de sinal 
-    F <= SWI[4:3]; // Dois cabos para verificar qual é o operador entre A e B
-    
-    // Verificando se vai ocorrer overflow ou underflow 
-    if ((F == 3'b00 & ((A + B) > 3)) | (F == 3'b01 & ((A - B) < -4))) begin
-      Flow <= 1;
-      LED <= 8'b10000000;
+  always_comb begin
+    if (F == 'b00) begin
+      if (A + B > 3) begin
+        Flow <= 1;
+      end
+      else begin
+        Flow <= 0; 
+      end
+    end else
+    if (F == 'b01) begin
+      if (A - B < -4) begin
+        Flow <= 1;
+      end
+      else begin
+        Flow <= 0; 
+      end
     end
     else begin
       Flow <= 0;
-      LED <= 8'b00000000;
-    end
-
-    if (F == 'b00) begin // Somador
-      Y = A + B;
-      // Se não ocorreu overflow 
-      if (!Flow) begin
-        operacao(Y);
-      end
-    end else
-    if (F == 'b01) begin // Subtrador
-      Y = A - B; 
-      // Se não ocorreu underflow
-      if (!Flow) begin
-        operacao(Y);
-      end
-    end else
-    if (F == 'b10) begin // Combinador da porta lógica AND bit-a-bit
-      operacao(A & B);
-    end 
-    else begin // Combinador da porta lógica OR bit-a-bit
-      operacao(A | B);
     end
   end
-endmodule
+
+  always_comb begin
+    A <= SWI[7:5];
+    B <= SWI[2:0];
+    F <= SWI[4:3];
+
+    if (F == 'b00 & !Flow) begin
+      operacao(A + B);
+      LED[2:0] <= A + B; 
+    end else
+
+    if (F == 'b01 & !Flow) begin
+      operacao(A - B);
+      LED[2:0] <= A - B; 
+    end else
+
+    if (F == 'b10 & !Flow) begin
+      operacao(A & B);
+      LED[2:0] <= A & B;
+    end
+
+    else begin
+      operacao(A | B);
+      LED[2:0] <= A | B;
+    end
+  end
+
+  always_comb begin
+    if (Flow) begin
+      LED[7] <= 1;
+    end
+    else begin
+      LED[7] <= 0; 
+    end
+  end
+  endmodule

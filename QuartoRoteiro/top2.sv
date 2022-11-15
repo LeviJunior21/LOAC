@@ -1,5 +1,5 @@
-// Aluno: Levi de Lima Pereira Júnior - 121210472
-// Roteiro 2
+// Levi de Lima Pereira Junior - 121210472
+// Roteiro 4, Questão 2
 
 parameter divide_by=100000000;  // divisor do clock de referência
 // A frequencia do clock de referencia é 50 MHz.
@@ -38,57 +38,21 @@ module top(input  logic clk_2,
     lcd_b <= {SWI, 56'hFEDCBA09876543};
   end
 
-  /*
-  Questão 1:
-  */
+    logic [0:0] selecaoEscritaLeitura;
+    logic [3:0] enderecoEntrada;
+    logic [3:0] leituraDados;
+    logic [3:0] dadosEntrada;
+    logic [3:0] memoria [3:0]; 
 
-  // Preparando para receber dois cabos
-  logic [1:0] entrada;
+    always_comb selecaoEscritaLeitura <= SWI[1];
+    always_comb enderecoEntrada <= SWI[3:2];
+    always_comb dadosEntrada <= SWI[7:4];
 
-  // Representação dos segmentos em binário
-  parameter apagado = 'b00000000;
-  parameter numeroZero = 'b00111111;
-  parameter numeroUm = 'b00000110;
-  parameter numeroDois = 'b01011011;
-
-  always_comb begin
-    // Recebendo os cabos nos SWIFT´s 0 e 1
-    entrada <= SWI[1:0];
-
-    if (entrada == 'b00) begin
-        SEG[7:0] <= apagado;
-    end
-    else if (entrada == 'b01) begin
-        SEG[7:0] <= numeroZero;
-    end
-    else if (entrada == 'b10) begin
-        SEG[7:0] <= numeroUm;
-    end
-    else begin
-        SEG[7:0] <= numeroDois;
-    end
-  end
-
-  /*
-  Questão 2:
-  */
-
-  logic [1:0] A;
-  logic [1:0] B;
-  logic status;
-
-  always_comb begin
-    A <= SWI[7:6];
-    B <= SWI[5:4];
-    status <= SWI[3];
-
-    if (status) begin
-        LED[7:6] <= B;
-    end
-    else begin
-        LED[7:6] <= A;
+    always_ff @(posedge clk_2) begin
+      if (selecaoEscritaLeitura) memoria[enderecoEntrada] <= dadosEntrada;
+      else leituraDados <= memoria[enderecoEntrada];
     end
 
-  end
-  
+    always_comb LED[7:4] <= leituraDados;
+    always_comb LED[0] <= clk_2;
 endmodule
