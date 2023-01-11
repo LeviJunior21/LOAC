@@ -21,3 +21,21 @@ Roteamento entre dois dados recebidos e um seletor.
 ### Top.sv:
 
 - Programa que soma, subtrai, e faz combinações AND e OR bit-a-bit.
+
+<h2>Roteiro 4:</h2>
+
+### Top.sv:
+
+- Programa que soma, subtrai, e faz combinações AND e OR bit-a-bit.
+
+<h2>Roteiro 5:</h2>
+
+### Top.sv:
+
+- Programa que soma, subtrai, e faz combinações AND e OR bit-a-bit.
+
+<h2>Roteiro 6:</h2>
+
+### Top.sv:
+
+- Programa que soma, subtrai, e faz combinações AND e OR bit-a-bit.
